@@ -1,0 +1,295 @@
+from traceback import print_tb
+import pandas as pd
+import datetime
+import requests
+
+s = requests.Session()
+today = datetime.datetime.now().strftime("%Y-%m-%d")
+print(today)
+all_in_one_json = []
+
+
+def get_todays_race():
+    try:
+        df = pd.DataFrame()
+
+        api_url = "https://www.veikkaus.fi/api/toto-info/v1/cards/date/" + today
+        response = s.get(api_url)
+        what = response.json()
+
+
+        to_day_cardId = what['collection'][0]['cardId']
+        race_place = what['collection'][0]['trackName']
+
+        res = s.get("https://www.veikkaus.fi/api/toto-info/v1/card/"+ str(to_day_cardId) + "/races")
+        res_j = res.json()
+        res_le = res_j['collection']
+
+
+        race_ID = []
+        race_results = []
+        race_type = []
+        race_riders = []
+        reverse_order = []
+        race_distance = []
+
+        for i in range(len(res_le)):
+                race_ID.append(res_le[i]['raceId'])
+                #race_results.append(res_le[i]['toteResultString'].split("-"))
+                race_type.append(res_le[i]['startType'])
+                race_riders.append(res_le[i]['raceStatus'])
+                reverse_order.append(res_le[i]['reserveHorsesOrder'].split("-"))
+                race_distance.append(res_le[i]['distance'])
+        print(race_ID)
+
+        pool_ids = []
+        
+        horse_names_2d = []
+        horse_age_2d = []
+        driver_name_2d = []
+        win_money_2d = []
+        gender_2d = []
+        starts_2d = []
+        first_postion_2d = []
+
+
+        horse_front_shoes_2d = []
+        horse_rear_shoes_2d = []
+        horse_coach_2d = []
+        horse_city_2d = []
+        
+        for i in race_ID:
+                res = s.get("https://www.veikkaus.fi/api/toto-info/v1/race/"+ str(i) + "/pools")
+                res_j = res.json()
+
+                race_horses = s.get("https://www.veikkaus.fi/api/toto-info/v1/race/" + str(i) + "/runners")
+                race_horses_json = race_horses.json()
+                race_horses_json_all = race_horses_json['collection']
+
+                horse_name = []
+                horse_age = [] 
+                driver_name = []
+            
+                gender = []   
+                this_yaar_start = []
+                this_yaar_1 = []
+                this_yaar_2 = []
+                this_yaar_winMoney = []
+
+                horse_front_shoes = []
+                horse_rear_shoes = []
+                horse_coach = []
+                horse_city = []
+
+                for i in range(len(race_horses_json_all)):
+                    #horse_name.append(race_horses_json_all[i]['horseName'])
+                    #horse_age.append(race_horses_json_all[i]['horseAge'])
+                    #driver_name.append(race_horses_json_all[i]['driverName'])
+
+                    
+                    try:
+                        horse_name.append(race_horses_json_all[i]['horseName'])
+                        horse_age.append(race_horses_json_all[i]['horseAge'])
+                        driver_name.append(race_horses_json_all[i]['driverName'])
+                        
+
+                        
+                        horse_front_shoes.append(race_horses_json_all[i]['frontShoes']) 
+                        horse_rear_shoes.append(race_horses_json_all[i]['rearShoes'])
+                        horse_city.append(race_horses_json_all[i]['ownerHomeTown'])
+                        horse_coach.append(race_horses_json_all[i]['coachName'])
+
+                        gender.append(race_horses_json_all[i]['gender'])
+                        this_yaar_start.append(race_horses_json_all[i]['stats']['currentYear']['starts'])
+                        this_yaar_winMoney.append(race_horses_json_all[i]['stats']['currentYear']['winMoney'])
+                        this_yaar_1.append(race_horses_json_all[i]['stats']['currentYear']['position1'])
+                        this_yaar_2.append(race_horses_json_all[i]['stats']['currentYear']['position2'])
+                    
+
+
+
+                    except:
+                        print("err from horse json")
+                        #gender.append(race_horses_json_all[i]['gender'])
+                        this_yaar_start.append(0)
+                        this_yaar_winMoney.append(0)
+                        this_yaar_1.append(0)
+                        this_yaar_2.append(0)
+
+                    
+                horse_names_2d.append([horse_name])
+                horse_age_2d.append([horse_age])
+                driver_name_2d.append([driver_name])
+                gender_2d.append([gender])
+
+                win_money_2d.append([this_yaar_winMoney])
+                starts_2d.append([this_yaar_start])       
+                first_postion_2d.append([this_yaar_1]) 
+
+
+                horse_front_shoes_2d.append(horse_front_shoes)
+                horse_rear_shoes_2d.append(horse_rear_shoes)
+                horse_coach_2d.append(horse_coach)
+                horse_city_2d.append(horse_city)
+
+            
+                
+                #win_money_2d.append([win_money])
+
+                pool_ids.append(res_j['collection'][0]['poolId'])
+
+
+        
+
+        start_index = 0
+        start_index_2 = -1
+        track_numebr = []
+        ods_for_horse = []
+        money_fro_horse = []
+        money_total = []
+        played_day = []
+        start_number = []
+        race_tyoe = []
+        race_riders_arr = []
+        place = []
+        race_res_2 = []
+        track_order = []
+        track_distance = []
+        horses_name = []
+        horses_age = []
+        drivers = []
+        #horses_money = []
+        genders = []
+        win_moneys = []
+
+        starts = []
+        first_places = []
+
+        print("this is poolid", pool_ids)
+
+
+        for i in pool_ids:
+                res = s.get("https://www.veikkaus.fi/api/toto-info/v1/pool/"+ str(i) + "/odds")
+                res_j = res.json()
+
+                #print(start_index)
+                #print(res_j)
+                start_index += 1
+                start_index_2 += 1
+
+                #net_sale = res_j['netSales'] / 100
+                #print(net_sale)
+                odds = res_j['odds']
+                #print(odds)
+
+                horses_for_json = []
+                for k in range(len(odds)):
+                   
+                    try:
+                        track_numebr.append(odds[k]['runnerNumber'])
+                     
+                        horses_for_json.append({"track": odds[k]['runnerNumber'],
+                                "start_num": start_index,
+                                "name": horse_names_2d[start_index_2][0][k],
+                                "age": horse_age_2d[start_index_2][0][k],
+                                "starts": starts_2d[start_index_2][0][k],
+                                "postion1": first_postion_2d[start_index_2][0][k],
+                                "driver": driver_name_2d[start_index_2][0][k],
+                                "win_money": win_money_2d[start_index_2][0][k],
+                                "gender": gender_2d[start_index_2][0][k],
+                                "probable": odds[k]['probable'] / 100,
+                                "amount": odds[k]['amount'] / 100,
+
+                                
+                                "front_shoes": horse_front_shoes_2d[start_index_2][k],
+                                "rear_shoes": horse_rear_shoes_2d[start_index_2][k],
+                                "coach": horse_coach_2d[start_index_2][k],
+                                "home_town": horse_city_2d[start_index_2][k]                               
+                                
+                                })
+                        
+                    except:
+                        print("err from array append")
+                        """
+                        print( {"track": odds[k]['runnerNumber'],
+                                "start_num": start_index,
+                                "name": horse_names_2d[start_index_2][0][k],
+                                "age": horse_age_2d[start_index_2][0][k],
+                                "starts": starts_2d[start_index_2][0][k],
+                                "postion1": first_postion_2d[start_index_2][0][k],
+                                "driver": driver_name_2d[start_index_2][0][k],
+                                "win_money": win_money_2d[start_index_2][0][k],
+                                "gender": gender_2d[start_index_2][0][k],
+                                "probable": odds[k]['probable'] / 100,
+                                "amount": odds[k]['amount'] / 100,
+
+                                
+                                "front_shoes": horse_front_shoes_2d[start_index_2][k],
+                                "rear_shoes": horse_rear_shoes_2d[start_index_2][k],
+                                "coach": horse_coach_2d[start_index_2][k],
+                                "home_town": horse_city_2d[start_index_2][k]                               
+                        })
+                        """
+                        
+                        
+                    
+
+                        try:
+                            track_numebr.pop()
+                        
+                            #horse_names_2d[start_index_2][0].pop(k)
+
+                        except:
+                            print("pop not need")
+
+                all_in_one_json.append({"day": today, 'place': race_place, "start_num": start_index,
+                            "reverse_order": reverse_order[start_index_2], "race_type": race_type[start_index_2],
+                            "race_distance": race_distance[start_index_2],
+                            "horses": horses_for_json })
+
+        #print(all_in_one_json)
+
+    
+    except:
+        print("err in data") 
+
+   
+
+    #return df
+    return all_in_one_json
+
+def make_horses(city):
+   
+    data = get_todays_race()
+    race_horse = pd.DataFrame()
+    days = []
+
+    try:
+        index = 0
+        for i in range(len(data)):
+            if data[i]['place'] == city:
+                #race_winner.append(int(data[i]['results'][0]))
+                #race_second.append(int(team[i]['results'][1]))
+
+                day = data[i]['day']
+                days.append(day)
+                race_typ = data[i]['race_type']
+                race_distance = data[i]['race_distance']
+            
+                
+                horses = data[i]['horses']
+                for k in range(len(horses)):
+                    horses[k]['day'] = day
+                    horses[k]['race_type'] = race_typ
+                    horses[k]['distance'] = race_distance
+                    race_horse = race_horse.append(horses[k], ignore_index=True)
+                        
+    except:
+        print("er")
+
+    return {"horses": race_horse, "days": list(dict.fromkeys(days)) }
+
+
+
+#make_h = make_horses('Lappeenranta')
+#print(make_h)
