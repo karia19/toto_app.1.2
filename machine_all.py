@@ -180,12 +180,86 @@ def hash_shoes(shoes):
         return 0
 
 
+def collect_all_data(city):
+
+    citys_arr = []
+    winners = []
+    days_arr = []
+
+    
+    all_city =  all_in_city = search_y_city(city)
+    w_2d = np.array(all_in_city['winners'])
+    d_2d = np.array(all_in_city['days'])
+    #i = make_horses_to_2d(all_in_city['horses'], all_in_city['days']) #.reshape(-1,1)
+    i = pd.DataFrame.from_dict(all_city['horses'])
+    winners.extend(w_2d)
+    days_arr.extend(d_2d)
+    citys_arr.append(i)
+
+    df = pd.concat(citys_arr,  axis = 0)
+    df['wins'] = 0
+
+
+    names = get_array(list(df['name']))
+    drivers = get_array(list(df['driver']))
+
+    
+    for horse in names:
+        horse_races = df.query("name == @horse")
+        #print(horse)
+        horse_starts = 1
+        horse_wins = 1
+        for index, row in horse_races.iterrows():
+            df.at[index, 'horse_starts'] = horse_starts
+            horse_starts += 1
+            
+            if row['winner'] == 1.0:
+                df.at[index, "horse_wins"] = horse_wins
+                df.at[index, "horse_win_prob"] = horse_wins / horse_starts
+                horse_wins += 1
+            else:
+                df.at[index, "horse_wins"] =  0.0
+                df.at[index, "horse_win_prob"] = horse_wins / horse_starts
+
+
+ 
+    for d in drivers:
+        driver_race = df.query("driver == @d")
+        mem_starts = 1
+        for index , row in driver_race.iterrows():
+            df.at[index, "driver_starts"] = mem_starts
+            mem_starts += 1
+   
+   
+
+   
+    
+    horse_names = get_array(list(df['name']))
+    le_horse = LabelEncoder()
+    le_horse.fit(horse_names)
+    df['horse_l'] = le_horse.fit_transform(df['name'])   
+
+    driver_names = get_array(list(df['driver']))
+    le_driver = LabelEncoder()
+    le_horse.fit(driver_names)
+    df['driver_l'] = le_driver.fit_transform(df['driver'])
+
+    #df.pop(['wins',  'driver' ,'front_shoes', 'coach','day' ]) 
+    #### MAKE OLS TEST ####
+    df['prob_small'] = df['probable'] / 100
+    center_function = lambda x: x - x.mean()
+    df['amount_cen'] = center_function(np.array(df['amount']))
+
+
+    return df
+
 
 
     
 
 if __name__ == "__main__":
 
+    """
     tracks = ['Kuopio', 'Vermo', 'Pori', 'Jokimaa', 'Seinäjoki', 'Joensuu', 'Mikkeli', 'Lappeenranta', 'Oulu', 'Forssa', 'Turku', 'Jyväskylä']
     tracks2 = ['Kuopio', 'Vermo', 'Pori', 'Jokimaa', 'Seinäjoki', 'Forssa', 'Mikkeli', 'Lappeenranta']
     tracks3 = ['Forssa']
@@ -286,12 +360,12 @@ if __name__ == "__main__":
     df2['winner'] = winners
     print(df2)
 
-    """
-    file = open('toto_for_machine.pkl', 'wb')
-    pickle.dump(df2, file)
-    file.close()
-    print(df2)
-    """
+    
+    #file = open('toto_for_machine.pkl', 'wb')
+    #pickle.dump(df2, file)
+    #file.close()
+    #print(df2)
+    
     
     
     col_len = []
@@ -310,9 +384,9 @@ if __name__ == "__main__":
     print("GradientBoost", clf_boost.score(X_test, y_test))
     
 
-    """
-    joblib.dump(clf_boost, "gradientBoost_new.pkl")
-    joblib.dump(clf, "logasticRegression_new.pkl")
+    
+    #joblib.dump(clf_boost, "gradientBoost_new.pkl")
+    #joblib.dump(clf, "logasticRegression_new.pkl")
     """
     
     

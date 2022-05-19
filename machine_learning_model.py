@@ -195,7 +195,7 @@ if __name__ == "__main__":
 
     
     ### LOAD TODAY RACES AND PREDICT #### 
-    place = 'Kuopio'
+    place = 'Vermo'
     clf_boost = joblib.load("gradientBoost_new.pkl")
     clf = joblib.load("logasticRegression_new.pkl")                   
     
