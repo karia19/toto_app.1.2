@@ -53,6 +53,7 @@ def get_horses(day):
         race_riders = []
         reverse_order = []
         race_distance = []
+        start_win_money = []
 
         for i in range(len(res_le)):
             race_ID.append(res_le[i]['raceId'])
@@ -61,6 +62,8 @@ def get_horses(day):
             race_riders.append(res_le[i]['raceStatus'])
             reverse_order.append(res_le[i]['reserveHorsesOrder'].split("-"))
             race_distance.append(res_le[i]['distance'])
+            start_win_money.append(res_le[i]["firstPrize"])
+
         print(race_ID)
 
         pool_ids = []
@@ -264,7 +267,7 @@ def get_horses(day):
 
             all_in_one_json.append({"day": day, 'place': race_place, "start_num": start_index, "results": race_results[start_index_2],
                             "reverse_order": reverse_order[start_index_2], "race_type": race_type[start_index_2],
-                            "race_distance": race_distance[start_index_2],
+                            "race_distance": race_distance[start_index_2], "win_money": start_win_money[start_index_2],
                             "horses": horses_for_json })
 
 
@@ -310,11 +313,11 @@ if __name__ == "__main__":
 
     
     today = datetime.datetime.now()
-    last_years = today - datetime.timedelta(days=299)
+    last_years = today - datetime.timedelta(days=411)
 
     days = []
     
-    for n in range(1, 299):
+    for n in range(1, 411):
         arrive = last_years + datetime.timedelta(days=n)
         days.append(arrive.strftime('%Y-%m-%d'))
 

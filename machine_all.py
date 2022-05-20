@@ -35,6 +35,7 @@ def search_y_city(city):
             if team[i]['place'] == city:
                 race_winner.append(int(team[i]['results'][0]))   
                 win = int(team[i]['results'][0])
+                win_money = int(team[i]['win_money'])
 
                 #race_second.append(int(team[i]['results'][1]))
 
@@ -53,8 +54,11 @@ def search_y_city(city):
 
                     if horses[k]['track'] == win:
                         horses[k]['winner'] = 1.0
+                        horses[k]['win_money'] = win_money
                     else:
                         horses[k]['winner'] = 0.0
+                        horses[k]['win_money'] = 0.0
+
 
                     race_horse = race_horse.append(horses[k], ignore_index=True)
                         
@@ -119,7 +123,7 @@ def make_horses_to_2d(data, days):
                                             horse_gender(row['gender']),
                                             #race_type(row['race_type']),
                                             #hash_shoes(row['front_shoes']),
-                                            #row['win_money']
+                                            row['horse_money'],
                                             row['home_l'] , row['driver_l'],row['coach_l'],
                                             row['horse_starts'], row['driver_starts'],                           
                                             row['horse_win_prob']
@@ -132,7 +136,7 @@ def make_horses_to_2d(data, days):
             if len(test_ar) != 0:
                 #print(len(test_ar))
                 #same_len = 189 - len(test_ar)
-                for i in range(len(test_ar), 179):
+                for i in range(len(test_ar), 192):
                     #if test_ar[i] != float:
                         test_ar.append(0.0)
 
@@ -142,7 +146,7 @@ def make_horses_to_2d(data, days):
     #print(all_in_one)
 
     col_len = []
-    for i in range(179):
+    for i in range(192):
         col_len.append(i)
     
     df = pd.DataFrame(all_in_one, columns=col_len)
@@ -208,7 +212,7 @@ def collect_all_data(city):
         horse_races = df.query("name == @horse")
         #print(horse)
         horse_starts = 1
-        horse_wins = 1
+        horse_wins = 0
         for index, row in horse_races.iterrows():
             df.at[index, 'horse_starts'] = horse_starts
             horse_starts += 1
@@ -216,11 +220,9 @@ def collect_all_data(city):
             if row['winner'] == 1.0:
                 df.at[index, "horse_wins"] = horse_wins
                 df.at[index, "horse_win_prob"] = horse_wins / horse_starts
-                horse_wins += 1
             else:
                 df.at[index, "horse_wins"] =  0.0
                 df.at[index, "horse_win_prob"] = horse_wins / horse_starts
-
 
  
     for d in drivers:
@@ -259,10 +261,10 @@ def collect_all_data(city):
 
 if __name__ == "__main__":
 
-    """
+    
     tracks = ['Kuopio', 'Vermo', 'Pori', 'Jokimaa', 'Seinäjoki', 'Joensuu', 'Mikkeli', 'Lappeenranta', 'Oulu', 'Forssa', 'Turku', 'Jyväskylä']
     tracks2 = ['Kuopio', 'Vermo', 'Pori', 'Jokimaa', 'Seinäjoki', 'Forssa', 'Mikkeli', 'Lappeenranta']
-    tracks3 = ['Forssa']
+    tracks3 = ['Kouvola']
 
     place = 'Pori'
     citys_arr = []
@@ -292,23 +294,29 @@ if __name__ == "__main__":
     names = get_array(list(df['name']))
     drivers = get_array(list(df['driver']))
 
-    
+    #### MAKE HORSE WINMONEY AND WIN PROBA ####    
     for horse in names:
         horse_races = df.query("name == @horse")
         #print(horse)
         horse_starts = 1
-        horse_wins = 1
+        horse_wins = 0
+        horse_win_money = 0.0
         for index, row in horse_races.iterrows():
             df.at[index, 'horse_starts'] = horse_starts
             horse_starts += 1
             
             if row['winner'] == 1.0:
+                horse_wins += 1
+                horse_win_money += float(row['win_money'])
+
                 df.at[index, "horse_wins"] = horse_wins
                 df.at[index, "horse_win_prob"] = horse_wins / horse_starts
-                horse_wins += 1
+                df.at[index, "horse_money"] = horse_win_money
+
             else:
-                df.at[index, "horse_wins"] =  0.0
+                df.at[index, "horse_wins"] =  0.0123
                 df.at[index, "horse_win_prob"] = horse_wins / horse_starts
+                df.at[index, "horse_money"] = 0.0
 
 
  
@@ -342,7 +350,7 @@ if __name__ == "__main__":
     wins_num = 2
     print(df.query("horse_wins >= @wins_num"))
 
-    x = df[['age', 'track', 'prob_small', 'driver_starts', 'amount_cen', 'horse_starts', 'horse_win_prob']]
+    x = df[['age', 'track', 'prob_small', 'driver_starts', 'amount_cen', 'horse_starts', 'horse_win_prob', 'horse_money']]
     y = df['winner']
  
     # adding the constant term
@@ -354,7 +362,7 @@ if __name__ == "__main__":
  
     # printing the summary table
     print(result.summary())
-    print(df[1400:1430])
+    print(df[1500:1530])
 
     df2 = make_horses_to_2d(df, days_arr) #.reshape(-1,1)
     df2['winner'] = winners
@@ -369,13 +377,13 @@ if __name__ == "__main__":
     
     
     col_len = []
-    for i in range(179):
+    for i in range(192):
         col_len.append(i)
 
     X = df2[col_len].to_numpy(dtype="float")
     y = df2['winner'].to_numpy(dtype="int")
 
-    X_train,X_test,y_train,y_test = train_test_split(X, np.array(y), test_size = 0.20 ,random_state = 20)
+    X_train,X_test,y_train,y_test = train_test_split(X, np.array(y), test_size = 0.20 ,random_state = 0)
 
     clf = LogisticRegression(solver='saga',max_iter=1200).fit(X_train, y_train)
     print("LogasticRegression", clf.score(X_test, y_test))
@@ -385,9 +393,9 @@ if __name__ == "__main__":
     
 
     
-    #joblib.dump(clf_boost, "gradientBoost_new.pkl")
-    #joblib.dump(clf, "logasticRegression_new.pkl")
-    """
+    joblib.dump(clf_boost, "gradientBoost_"+ tracks3[0] +".pkl")
+    joblib.dump(clf, "logasticRegression_" + tracks3[0]+ ".pkl")
+    
     
     
     
