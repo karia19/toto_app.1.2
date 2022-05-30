@@ -112,7 +112,7 @@ def make_horses_to_2d(data, df_history, days):
             test_ar = []
             
             for index, row in df_res.iterrows():     
-                test_ar.extend([row['track'] ,row['age'],  row['prob_small'], row['amount'], 
+                test_ar.extend([row['track'] ,row['horse_run_time'],  row['prob_small'], row['amount'], 
                                             horse_gender(row['gender']),
                                             #race_type(row['race_type']),
                                             #hash_shoes(row['front_shoes']),
@@ -207,12 +207,16 @@ def set_drivers_history(past_data, today_data, drivers):
 
 if __name__ == "__main__":
 
-    place = 'Kouvola'
+    place = 'Turku'
     
     today_race = load_today_race.make_horses(place)
     
     df = today_race['horses']
     print(df)
+    #num_s = 1
+    #print(df.query("start_num == @num_s"))
+
+    
 
     names = get_array(list(df['name']))
     drivers = get_array(list(df['driver']))
@@ -252,16 +256,12 @@ if __name__ == "__main__":
 
   
     for i in range(len(boost_res)):
-        print("start " + str(i +1), clf_res[i].tolist())
-        print("start " + str(i +1), np.sum(clf_res[i]))
-
-        """
-        biggest_number = max(boost_res[i])
-        print(boost_res[i].index(biggest_number))
-        """
-        """
-        floats = boost_res[i].argpartition(-3)[-3:] 
-        print( "start " +  str(i) + " boost: ", floats)
-        floats2 = clf_res[i].argpartition(-3)[-3:] 
-        print("start " + str(i) + " logas: ", floats2)
-        """
+        #print("start " + str(i +1), clf_res[i].tolist())
+        #print("start " + str(i +1), np.sum(clf_res[i]))
+        
+        floats2 = clf_res[i].argsort()[::-1][:3] + 1
+        print("start " + str(i +1) + " logas: ", floats2)
+        
+        floats3 = boost_res[i].argsort()[::-1][:3] + 1
+        print("start " + str(i +1) + " boost: ", floats3)
+    

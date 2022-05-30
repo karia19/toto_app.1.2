@@ -2,6 +2,7 @@ from traceback import print_tb
 import pandas as pd
 import datetime
 import requests
+import re
 
 s = requests.Session()
 today = datetime.datetime.now().strftime("%Y-%m-%d")
@@ -9,17 +10,23 @@ print(today)
 all_in_one_json = []
 
 
-def get_todays_race():
+def get_todays_race(city):
     try:
         df = pd.DataFrame()
 
         api_url = "https://www.veikkaus.fi/api/toto-info/v1/cards/date/" + today
         response = s.get(api_url)
         what = response.json()
+        #print(what)
+
+        for i in range(len(what['collection'])):
+            if what['collection'][i]['country'] == "FI" and what['collection'][i]['trackName'] == city:
+                print("cellction", i)
+                collection_track_id = i 
 
 
-        to_day_cardId = what['collection'][0]['cardId']
-        race_place = what['collection'][0]['trackName']
+        to_day_cardId = what['collection'][collection_track_id]['cardId']
+        race_place = what['collection'][collection_track_id]['trackName']
 
         res = s.get("https://www.veikkaus.fi/api/toto-info/v1/card/"+ str(to_day_cardId) + "/races")
         res_j = res.json()
@@ -27,7 +34,7 @@ def get_todays_race():
 
 
         race_ID = []
-        race_results = []
+        
         race_type = []
         race_riders = []
         reverse_order = []
@@ -66,6 +73,10 @@ def get_todays_race():
                 race_horses_json = race_horses.json()
                 race_horses_json_all = race_horses_json['collection']
 
+              
+                horse_race_time = []
+                race_results = []
+
                 horse_name = []
                 horse_age = [] 
                 driver_name = []
@@ -88,6 +99,8 @@ def get_todays_race():
 
                     
                     try:
+
+
                         horse_name.append(race_horses_json_all[i]['horseName'])
                         horse_age.append(race_horses_json_all[i]['horseAge'])
                         driver_name.append(race_horses_json_all[i]['driverName'])
@@ -98,23 +111,34 @@ def get_todays_race():
                         horse_rear_shoes.append(race_horses_json_all[i]['rearShoes'])
                         horse_city.append(race_horses_json_all[i]['ownerHomeTown'])
                         horse_coach.append(race_horses_json_all[i]['coachName'])
-
+                        
+                        try:
+                            horse_race_time.append(race_horses_json_all[i]['stats']['currentYear']['record2'])
+                        except:
+                            horse_race_time.append("0.0")
+                            
+                            
                         gender.append(race_horses_json_all[i]['gender'])
                         this_yaar_start.append(race_horses_json_all[i]['stats']['currentYear']['starts'])
                         this_yaar_winMoney.append(race_horses_json_all[i]['stats']['currentYear']['winMoney'])
                         this_yaar_1.append(race_horses_json_all[i]['stats']['currentYear']['position1'])
-                        this_yaar_2.append(race_horses_json_all[i]['stats']['currentYear']['position2'])
+                        
+                        #this_yaar_2.append(race_horses_json_all[i]['stats']['currentYear']['position2'])
                     
+                        #print(race_horses_json_all[i]['stats']['currentYear']['record2'])
 
 
 
                     except:
                         print("err from horse json")
+
                         #gender.append(race_horses_json_all[i]['gender'])
                         this_yaar_start.append(0)
                         this_yaar_winMoney.append(0)
                         this_yaar_1.append(0)
-                        this_yaar_2.append(0)
+                        #this_yaar_2.append(0)
+
+                        
 
                     
                 horse_names_2d.append([horse_name])
@@ -132,7 +156,6 @@ def get_todays_race():
                 horse_coach_2d.append(horse_coach)
                 horse_city_2d.append(horse_city)
 
-            
                 
                 #win_money_2d.append([win_money])
 
@@ -167,7 +190,7 @@ def get_todays_race():
 
         print("this is poolid", pool_ids)
 
-
+        pattern = '[a-z]+'
         for i in pool_ids:
                 res = s.get("https://www.veikkaus.fi/api/toto-info/v1/pool/"+ str(i) + "/odds")
                 res_j = res.json()
@@ -176,6 +199,8 @@ def get_todays_race():
                 #print(res_j)
                 start_index += 1
                 start_index_2 += 1
+                index_for_time = 0
+
 
                 #net_sale = res_j['netSales'] / 100
                 #print(net_sale)
@@ -187,7 +212,13 @@ def get_todays_race():
                    
                     try:
                         track_numebr.append(odds[k]['runnerNumber'])
-                     
+                        
+                        
+                        if horse_race_time[index_for_time] == "-":
+                            h_time = 0.0
+                        else:
+                            h_time = float(re.sub(pattern, "", horse_race_time[index_for_time].replace(",", ".").replace("-", "0.0")))
+                        
                         horses_for_json.append({"track": odds[k]['runnerNumber'],
                                 "start_num": start_index,
                                 "name": horse_names_2d[start_index_2][0][k],
@@ -204,12 +235,17 @@ def get_todays_race():
                                 "front_shoes": horse_front_shoes_2d[start_index_2][k],
                                 "rear_shoes": horse_rear_shoes_2d[start_index_2][k],
                                 "coach": horse_coach_2d[start_index_2][k],
-                                "home_town": horse_city_2d[start_index_2][k]                               
+                                "home_town": horse_city_2d[start_index_2][k],
+                                "horse_run_time": h_time                               
+                               
                                 
                                 })
-                        
+                        index_for_time += 1
+
                     except:
                         print("err from array append")
+                        index_for_time += 1
+
                         """
                         print( {"track": odds[k]['runnerNumber'],
                                 "start_num": start_index,
@@ -232,10 +268,12 @@ def get_todays_race():
                         """
                         
                         
+                        
                     
 
                         try:
                             track_numebr.pop()
+
                         
                             #horse_names_2d[start_index_2][0].pop(k)
 
@@ -260,7 +298,7 @@ def get_todays_race():
 
 def make_horses(city):
    
-    data = get_todays_race()
+    data = get_todays_race(city)
     race_horse = pd.DataFrame()
     days = []
 
@@ -290,6 +328,5 @@ def make_horses(city):
     return {"horses": race_horse, "days": list(dict.fromkeys(days)) }
 
 
-
-#make_h = make_horses('Lappeenranta')
-#print(make_h)
+make_h = make_horses('Oulu')
+print(make_h['horses'])

@@ -19,10 +19,10 @@ def drivers(data_wins, data):
     df['wins'] = drivers_starts
     df['starts'] = drivers_loses
     df['proba'] = driver_prob
-    df = df.sort_values(by=['starts'], ascending=False)
-    print(df[:16])
+    df = df.sort_values(by=['wins'], ascending=False)
+   #print(df[:16])
 
-    return df[:20]
+    return df[:30]
 
 
 def find_drivers_to_array(data_wins):

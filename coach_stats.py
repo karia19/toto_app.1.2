@@ -19,10 +19,10 @@ def coach(data_wins, data):
     df['wins'] = coach_starts
     df['starts'] = coach_loses
     df['proba'] = coach_prob
-    df = df.sort_values(by=['starts'], ascending=False)
-    print(df[:20])
+    df = df.sort_values(by=['wins'], ascending=False)
+    #print(df[:20])
 
-    return df[:20]
+    return df[:30]
 
 def find_coach_to_array(data_wins):
     unique = []

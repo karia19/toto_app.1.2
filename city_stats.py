@@ -9,10 +9,8 @@ from sklearn.preprocessing import LabelEncoder
 import drivers_stats 
 import coach_stats
 
-f = open('toto_starts_2020.json')
-team = json.load(f)
 
-print(team[0])
+
 
 label_horse_gender = LabelEncoder()
 label_race_type = LabelEncoder()
@@ -58,6 +56,9 @@ def win_shoes(data):
 
 
 def search_y_city(city):
+    
+    f = open("toto_" + city+ ".json")
+    team = json.load(f)
 
     race_winner = pd.DataFrame()
     race_horse = pd.DataFrame()
@@ -107,22 +108,35 @@ def search_y_city(city):
    
     drivers_on_track = drivers_stats.drivers(race_winner, race_horse)
     coach_on_track = coach_stats.coach(race_winner, race_horse)
+    print("drivers:")
+    print(drivers_on_track)
+    print("coach;")
+    print(coach_on_track)
+
     win_shoes(race_winner)
 
     #print(race_horse[40:57])
     #print(race_horse)
+    pdN = pd.DataFrame.from_dict({ "car": car_res, "volt": volt_res})
+    print(pdN)
 
-    return { city + "_car": car_res, city+ "_volt": volt_res }
+    return { "car": pdN['car'].to_json(orient="records"), "volt": pdN['volt'].to_json(orient="records") , 
+                "coach": coach_on_track.to_json(orient="records"),
+                "drivers": drivers_on_track.to_json(orient="records") }
 
 #def find_drivers(arr, arr2):
 #    print(np.intersect1d(arr, arr2))
 
 
-tracks = ['Kuopio', 'Vermo', 'Pori', 'Jokimaa', 'Seinäjoki', 'Joensuu', 'Mikkeli', 'Lappeenranta', 'Oulu', 'Forssa', 'Turku', 'Jyväskylä']
+#tracks = ['Kuopio', 'Vermo', 'Pori', 'Jokimaa', 'Seinäjoki', 'Joensuu', 'Mikkeli', 'Lappeenranta', 'Oulu', 'Forssa', 'Turku', 'Jyväskylä']
 
-res_city = search_y_city("Forssa")
-pdN = pd.DataFrame.from_dict(res_city)
-print(pdN)
+
+
+#res_city = search_y_city("Kaustinen")
+#pdN = pd.DataFrame.from_dict(res_city)
+#print(pdN)
+
+
 
 """
 citys_arr = []

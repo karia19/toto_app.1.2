@@ -1,4 +1,5 @@
 
+from cmath import exp
 from re import L
 from matplotlib.pyplot import get
 import pandas as pd
@@ -12,14 +13,15 @@ import load_today_race
 import statsmodels.api as sm
 import joblib
 import pickle
-
+from datetime import datetime
 #df_win = pd.read_pickle("horses_win3.pkl")
 #df_no_wins = pd.read_pickle("horses_n_race3.pkl")
-f = open('toto_sort_2019.json')
-team = json.load(f)
+
 
 
 def search_y_city(city):
+    f = open("toto_" + city+ ".json")
+    team = json.load(f)
 
     race_winner = []
     race_second = []
@@ -119,7 +121,7 @@ def make_horses_to_2d(data, days):
             test_ar = []
             
             for index, row in df_res.iterrows():     
-                test_ar.extend([row['track'] ,row['age'],  row['prob_small'], row['amount'], 
+                test_ar.extend([row['track'] ,row['run_time_shift'],  row['prob_small'], row['amount'], 
                                             horse_gender(row['gender']),
                                             #race_type(row['race_type']),
                                             #hash_shoes(row['front_shoes']),
@@ -183,6 +185,11 @@ def hash_shoes(shoes):
     else:
         return 0
 
+def days_between_races(d1, d2):
+    d1 = datetime.strptime(d1, "%Y-%m-%d")
+    d2 = datetime.strptime(d2, "%Y-%m-%d")
+    return abs((d2 - d1).days)
+
 
 def collect_all_data(city):
 
@@ -213,17 +220,47 @@ def collect_all_data(city):
         #print(horse)
         horse_starts = 1
         horse_wins = 0
+        horse_win_money = 0.0
+
+
+
         for index, row in horse_races.iterrows():
             df.at[index, 'horse_starts'] = horse_starts
             horse_starts += 1
             
             if row['winner'] == 1.0:
+                horse_wins += 1
+                horse_win_money += float(row['win_money'])
+
                 df.at[index, "horse_wins"] = horse_wins
                 df.at[index, "horse_win_prob"] = horse_wins / horse_starts
+                df.at[index, "horse_money"] = horse_win_money
+
+                #horse_races.at[index, "horse_wins"] = horse_wins
+                #horse_races.at[index, "horse_win_prob"] = horse_wins / horse_starts
+                #horse_races.at[index, "horse_money"] = horse_win_money
+
+
             else:
                 df.at[index, "horse_wins"] =  0.0
                 df.at[index, "horse_win_prob"] = horse_wins / horse_starts
+                df.at[index, "horse_money"] = 0.0
 
+                #horse_races.at[index, "horse_wins"] =  0.0123
+                #horse_races.at[index, "horse_win_prob"] = horse_wins / horse_starts
+                #horse_races.at[index, "horse_money"] = 0.0
+
+        ### SHIFT DATA TO PAST ###
+        """
+        horse_races['win_prob'] = horse_races['horse_win_prob'].shift(-1, fill_value=0)
+        horse_races['h_money'] = horse_races['horse_money'].shift(-1, fill_value=0)
+        memory_index = 0
+        
+        for index, row in horse_races.iterrows():
+            df.at[index, "horse_win_prob"] =  horse_races['win_prob'].iloc[memory_index]
+            df.at[index, "horse_money"] = horse_races['h_money'].iloc[memory_index]
+            memory_index += 1
+        """
  
     for d in drivers:
         driver_race = df.query("driver == @d")
@@ -264,7 +301,7 @@ if __name__ == "__main__":
     
     tracks = ['Kuopio', 'Vermo', 'Pori', 'Jokimaa', 'Seinäjoki', 'Joensuu', 'Mikkeli', 'Lappeenranta', 'Oulu', 'Forssa', 'Turku', 'Jyväskylä']
     tracks2 = ['Kuopio', 'Vermo', 'Pori', 'Jokimaa', 'Seinäjoki', 'Forssa', 'Mikkeli', 'Lappeenranta']
-    tracks3 = ['Kouvola']
+    tracks3 = ['Vermo']
 
     place = 'Pori'
     citys_arr = []
@@ -301,6 +338,10 @@ if __name__ == "__main__":
         horse_starts = 1
         horse_wins = 0
         horse_win_money = 0.0
+
+        days_bbetween_index = 0
+        
+
         for index, row in horse_races.iterrows():
             df.at[index, 'horse_starts'] = horse_starts
             horse_starts += 1
@@ -310,15 +351,46 @@ if __name__ == "__main__":
                 horse_win_money += float(row['win_money'])
 
                 df.at[index, "horse_wins"] = horse_wins
-                df.at[index, "horse_win_prob"] = horse_wins / horse_starts
-                df.at[index, "horse_money"] = horse_win_money
+                #df.at[index, "horse_win_prob"] = horse_wins / horse_starts
+                #df.at[index, "horse_money"] = horse_win_money
 
+                horse_races.at[index, "horse_wins"] = horse_wins
+                horse_races.at[index, "horse_win_prob"] = horse_wins / horse_starts
+                horse_races.at[index, "horse_money"] = horse_win_money
+                
+                
+                #days_between =  days_between_races(horse_races['day'].iloc[days_bbetween_index], horse_races['day'].iloc[days_bbetween_index + 1])
+                #days_bbetween_index += 1
+                
+
+                
             else:
-                df.at[index, "horse_wins"] =  0.0123
-                df.at[index, "horse_win_prob"] = horse_wins / horse_starts
-                df.at[index, "horse_money"] = 0.0
+                df.at[index, "horse_wins"] =  0.0
+                #df.at[index, "horse_win_prob"] = horse_wins / horse_starts
+                #df.at[index, "horse_money"] = 0.0
+
+                horse_races.at[index, "horse_wins"] =  0.0123
+                horse_races.at[index, "horse_win_prob"] = horse_wins / horse_starts
+                horse_races.at[index, "horse_money"] = 0.0
 
 
+                #days_between =  days_between_races(horse_races['day'].iloc[days_bbetween_index], horse_races['day'].iloc[days_bbetween_index + 1])
+                #days_bbetween_index += 1
+
+        ### SHIFT DATA TO PAST ###
+        horse_races['win_prob'] = horse_races['horse_win_prob'].shift(-1, fill_value=0)
+        horse_races['h_money'] = horse_races['horse_money'].shift(-1, fill_value=0)
+
+        horse_races['time'] = horse_races['run_time'].shift(-1, fill_value='0.0')
+        
+        memory_index = 0
+        pattern = '[a-z]+'
+        
+        for index, row in horse_races.iterrows():
+            df.at[index, "horse_win_prob"] =  horse_races['win_prob'].iloc[memory_index]
+            df.at[index, "horse_money"] = horse_races['h_money'].iloc[memory_index]
+            df.at[index, "run_time_shift"] =  horse_races['time'].iloc[memory_index]
+            memory_index += 1
  
     for d in drivers:
         driver_race = df.query("driver == @d")
@@ -350,7 +422,7 @@ if __name__ == "__main__":
     wins_num = 2
     print(df.query("horse_wins >= @wins_num"))
 
-    x = df[['age', 'track', 'prob_small', 'driver_starts', 'amount_cen', 'horse_starts', 'horse_win_prob', 'horse_money']]
+    x = df[['run_time', 'track', 'prob_small', 'driver_starts', 'amount_cen', 'horse_starts', 'horse_win_prob', 'horse_money']]
     y = df['winner']
  
     # adding the constant term
@@ -383,7 +455,7 @@ if __name__ == "__main__":
     X = df2[col_len].to_numpy(dtype="float")
     y = df2['winner'].to_numpy(dtype="int")
 
-    X_train,X_test,y_train,y_test = train_test_split(X, np.array(y), test_size = 0.20 ,random_state = 0)
+    X_train,X_test,y_train,y_test = train_test_split(X, np.array(y), test_size = 0.20 ,random_state = 20)
 
     clf = LogisticRegression(solver='saga',max_iter=1200).fit(X_train, y_train)
     print("LogasticRegression", clf.score(X_test, y_test))
@@ -393,8 +465,8 @@ if __name__ == "__main__":
     
 
     
-    joblib.dump(clf_boost, "gradientBoost_"+ tracks3[0] +".pkl")
-    joblib.dump(clf, "logasticRegression_" + tracks3[0]+ ".pkl")
+    #joblib.dump(clf_boost, "gradientBoost_"+ tracks3[0] +".pkl")
+    #joblib.dump(clf, "logasticRegression_" + tracks3[0]+ ".pkl")
     
     
     

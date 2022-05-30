@@ -18,7 +18,12 @@ import pandas as pd
 import datetime
 import pickle
 import json
+import re
+import numpy as np
 
+tracks = ['Kuopio', 'Vermo', 'Härmä', 'Pori', 'Ylivieska', 'Jokimaa', 'Kaustinen', 
+            'Seinäjoki', 'Joensuu', 'Kouvola', 'Mikkeli', 'Lappeenranta', 'Oulu', 
+            'Forssa', 'Turku', 'Joensuu', 'Jyväskylä','Teivo', 'Vieremä', 'Kuopio']
 
 s = requests.Session()
 
@@ -31,16 +36,23 @@ all_in_one_json = []
 
 def get_horses(day):
     print(day)
-    try:
+    try:   
         df = pd.DataFrame()
 
         api_url = "https://www.veikkaus.fi/api/toto-info/v1/cards/date/" + day
         response = s.get(api_url)
         what = response.json()
+        
+        print(len(what['collection']))
+
+        for i in range(len(what['collection'])):
+            if what['collection'][i]['country'] == "FI" and what['collection'][i]['trackName'] in tracks:
+                print("cellction", i)
+                collection_track_id = i 
 
 
-        to_day_cardId = what['collection'][0]['cardId']
-        race_place = what['collection'][0]['trackName']
+        to_day_cardId = what['collection'][collection_track_id]['cardId']
+        race_place = what['collection'][collection_track_id]['trackName']
 
         res = s.get("https://www.veikkaus.fi/api/toto-info/v1/card/"+ str(to_day_cardId) + "/races")
         res_j = res.json()
@@ -51,7 +63,7 @@ def get_horses(day):
         race_results = []
         race_type = []
         race_riders = []
-        reverse_order = []
+        #reverse_order = []
         race_distance = []
         start_win_money = []
 
@@ -60,7 +72,7 @@ def get_horses(day):
             race_results.append(res_le[i]['toteResultString'].split("-"))
             race_type.append(res_le[i]['startType'])
             race_riders.append(res_le[i]['raceStatus'])
-            reverse_order.append(res_le[i]['reserveHorsesOrder'].split("-"))
+            #reverse_order.append(res_le[i]['reserveHorsesOrder'].split("-"))
             race_distance.append(res_le[i]['distance'])
             start_win_money.append(res_le[i]["firstPrize"])
 
@@ -76,6 +88,8 @@ def get_horses(day):
         starts_2d = []
         first_postion_2d = []
 
+        new_order_pos_2d = []
+        new_order_km_2d = []
 
         horse_front_shoes_2d = []
         horse_rear_shoes_2d = []
@@ -90,9 +104,21 @@ def get_horses(day):
             race_horses_json = race_horses.json()
             race_horses_json_all = race_horses_json['collection']
 
+            try:
+                race_times = s.get("https://www.veikkaus.fi/api/toto-info/v1/race/" + str(i) +"/competition-results")
+                race_time_json = race_times.json()
+                race_time_runners = race_time_json['runners']
+            except:
+                print("error in race_times")
+
+            horse_race_time = []
+            horse_race_position = []
             horse_name = []
             horse_age = [] 
             driver_name = []
+            
+            horse_index = []
+
         
             gender = []   
             this_yaar_start = []
@@ -113,19 +139,31 @@ def get_horses(day):
                 
                 try:
                     
+                    horse_index.append(race_time_runners[i]['startNumber'])
+                    try:
+                        horse_race_time.append(race_time_runners[i]['kmTime'])
+                    except:
+                        horse_race_time.append("0.0")
+
+                    try:
+                        horse_race_position.append(int(race_time_runners[i]['position']))
+
+                    except:
+                        horse_race_position.append(0)
+                    
                     horse_name.append(race_horses_json_all[i]['horseName'])
                     horse_age.append(race_horses_json_all[i]['horseAge'])
                     driver_name.append(race_horses_json_all[i]['driverName'])
-                    
-
-                    
                     horse_front_shoes.append(race_horses_json_all[i]['frontShoes']) 
                     horse_rear_shoes.append(race_horses_json_all[i]['rearShoes'])
-                    horse_city.append(race_horses_json_all[i]['ownerHomeTown'])
+                    #horse_city.append(race_horses_json_all[i]['ownerHomeTown'])
                     horse_coach.append(race_horses_json_all[i]['coachName'])
 
                     gender.append(race_horses_json_all[i]['gender'])
                     this_yaar_start.append(0.0)
+                    
+                    
+                    
                     #this_yaar_winMoney.append(race_horses_json_all[i]['stats']['currentYear']['winMoney'])
                     #this_yaar_1.append(race_horses_json_all[i]['stats']['currentYear']['position1'])
                     #this_yaar_2.append(race_horses_json_all[i]['stats']['currentYear']['position2'])
@@ -163,33 +201,34 @@ def get_horses(day):
 
             pool_ids.append(res_j['collection'][0]['poolId'])
 
+            #print(horse_race_position)
+            #print(horse_index)
+            #print(horse_race_time)
 
-    
+            new_order_kmTime = []
+            new_order_position = []
 
+            
+
+            for i in range(len(horse_index)):
+                index = horse_index.index(i + 1) 
+                new_order_kmTime.append(horse_race_time[index])
+                new_order_position.append(index + 1)
+            
+            print(new_order_kmTime)
+            print(new_order_position)
+
+            new_order_pos_2d.append(new_order_position)
+            new_order_km_2d.append(new_order_kmTime)
+            
         start_index = 0
         start_index_2 = -1
         track_numebr = []
-        ods_for_horse = []
-        money_fro_horse = []
-        money_total = []
-        played_day = []
-        start_number = []
-        race_tyoe = []
-        race_riders_arr = []
-        place = []
-        race_res_2 = []
-        track_order = []
-        track_distance = []
-        horses_name = []
-        horses_age = []
-        drivers = []
-        #horses_money = []
-        genders = []
-        win_moneys = []
+      
+        pattern = '[a-z]+'
 
-        starts = []
-        first_places = []
 
+       
 
         for i in pool_ids:
             res = s.get("https://www.veikkaus.fi/api/toto-info/v1/pool/"+ str(i) + "/odds")
@@ -199,61 +238,58 @@ def get_horses(day):
             #print(res_j)
             start_index += 1
             start_index_2 += 1
+            index_for_time = 0
+
 
             net_sale = res_j['netSales'] / 100
             #print(net_sale)
             odds = res_j['odds']
-            #print(odds)
+            #print("odds", odds)
+            print(horse_age_2d)
+            print(new_order_pos_2d)
 
             horses_for_json = []
             for k in range(len(odds)):
+                print("dd", k)
+               
                 try:
-                    """
-                    track_numebr.append(odds[k]['runnerNumber'])
-                    ods_for_horse.append(odds[k]['probable'] / 100)
-                    money_fro_horse.append(odds[k]['amount'] / 100)
-                    #money_total.append(net_sale)
-                    played_day.append(day)
-                    start_number.append(start_index)
-                    race_tyoe.append(race_type[start_index_2])
-                    race_riders_arr.append(race_riders[start_index_2])
-                    place.append(race_place)
-                    race_res_2.append(race_results[start_index_2])
-                    track_order.append(reverse_order[start_index_2])
-                    track_distance.append(race_distance[start_index_2])
+                    if new_order_km_2d[start_index_2][k] == "-":
+                            h_time = 0.0
+                    else:
+                            h_time = float(re.sub(pattern, "", new_order_km_2d[start_index_2][k].replace(",", ".").replace("-", "0.0")))
 
-                    win_moneys.append(win_money_2d[start_index_2][0][k])
+                  
 
-                    horses_name.append(horse_names_2d[start_index_2][0][k])
-                    horses_age.append(horse_age_2d[start_index_2][0][k])
-                    drivers.append(driver_name_2d[start_index_2][0][k])
-                    genders.append(gender_2d[start_index_2][0][k])
-                    #horses_money.append(win_money_2d[start_index_2][0][k])
-                    starts.append(starts_2d[start_index_2][0][k])
-                    first_places.append(first_postion_2d[start_index_2][0][k])
-                    """
                     horses_for_json.append({"track": odds[k]['runnerNumber'],
                                "start_num": start_index,
                                "name": horse_names_2d[start_index_2][0][k],
                                "age": horse_age_2d[start_index_2][0][k],
                                "starts": starts_2d[start_index_2][0][k],
-                               #"postion1": first_postion_2d[start_index_2][0][k],
                                "driver": driver_name_2d[start_index_2][0][k],
-                               #"win_money": win_money_2d[start_index_2][0][k],
                                "gender": gender_2d[start_index_2][0][k],
-                               "probable": odds[k]['probable'] / 100,
+                               
+                               "probable":  odds[k]['probable'] / 100,
+
                                "amount": odds[k]['amount'] / 100,
 
                               
                                "front_shoes": horse_front_shoes_2d[start_index_2][k],
                                "rear_shoes": horse_rear_shoes_2d[start_index_2][k],
                                "coach": horse_coach_2d[start_index_2][k],
-                               "home_town": horse_city_2d[start_index_2][k]                               
+                               #"home_town": horse_city_2d[start_index_2][k],  
+                               "run_time": h_time,
+                               "position": new_order_pos_2d[start_index_2][k]                               
+                             
                                
                                 })
+                    
+                    index_for_time += 1
+
 
                 except:
                     print("err from array append")
+                    index_for_time += 1
+
                     
                 
 
@@ -264,48 +300,22 @@ def get_horses(day):
 
                     except:
                         print("pop not need")
+            
+            print(len(horses_for_json))
 
             all_in_one_json.append({"day": day, 'place': race_place, "start_num": start_index, "results": race_results[start_index_2],
-                            "reverse_order": reverse_order[start_index_2], "race_type": race_type[start_index_2],
+                            "race_type": race_type[start_index_2],
                             "race_distance": race_distance[start_index_2], "win_money": start_win_money[start_index_2],
                             "horses": horses_for_json })
 
 
-
-        
-        #print(all_in_one_json)
-
-       
-        """    
-        df['day'] = played_day
-        df['place'] = race_place
-        df['name'] = horses_name
-        df['age'] = horses_age
-        df['starts'] = starts
-        df['position1'] = first_places
-        df['driver'] = drivers
-    
-        df['win_money'] = win_moneys
-        df['gender'] = genders
-        df['start_num'] = start_number
-        df['race_distance'] = track_distance
-        df['race_type'] = race_tyoe
-        df['race_riders'] = race_riders_arr
-        df['track_num'] = track_numebr 
-        df['ods_horse'] = ods_for_horse
-        df['played_money'] = money_fro_horse
-        df['results'] = race_res_2
-        df['reverse_order'] = track_order
-
-
-        #print(df)
-        """   
     except:
-        print("err in data") 
+        print("err")
+    
 
    
 
-    #return df
+   
     return all_in_one_json
         
 
@@ -313,21 +323,32 @@ if __name__ == "__main__":
 
     
     today = datetime.datetime.now()
-    last_years = today - datetime.timedelta(days=411)
+    last_years = today - datetime.timedelta(days=3)
 
     days = []
     
-    for n in range(1, 411):
+    for n in range(1,2):
         arrive = last_years + datetime.timedelta(days=n)
         days.append(arrive.strftime('%Y-%m-%d'))
 
     for day in days:
        day = get_horses(day)
-       
+      
+    """
+       with open('toto_starts_2021.json', 'r+') as f:
+            json_data = json.load(f)
+            #print(len(json_data))
+            json_data.append(day)
+            f.seek(0)
+            f.write(json.dumps(json_data))
+            f.truncate()
 
+    with open('toto_starts_2021.json', 'w') as f:
+            f.write(json.dumps(json_data))
+    """
     
-    with open('toto_sort_2019.json', 'w') as f:
-        json.dump(all_in_one_json, f)
+    with open('toto_starts_2021.json', 'w') as f:
+            json.dump(all_in_one_json, f)
     
     
 
