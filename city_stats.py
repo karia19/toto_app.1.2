@@ -57,34 +57,20 @@ def win_shoes(data):
 
 def search_y_city(city):
     
-    f = open("toto_" + city+ ".json")
-    team = json.load(f)
-
+    team = pd.read_pickle("make_horse_stats/horses.pkl")
+    #team = json.load(f)
+    team = team.query("race_city == @city")
     race_winner = pd.DataFrame()
     race_horse = pd.DataFrame()
 
     try:
-        index = 0
-        for i in range(len(team)):
-            if team[i]['place'] == city:
-                winner = int(team[i]['results'][0])
-                day = team[i]['day']
-                race_typ = team[i]['race_type']
-                race_distance = team[i]['race_distance']
-            
-                
-                horses = team[i]['horses']
-                for k in range(len(horses)):
-                    horses[k]['day'] = day
-                    horses[k]['race_type'] = race_typ
-                    horses[k]['distance'] = race_distance
-                    
-                    if horses[k]['track'] == winner:
-                        race_winner = race_winner.append(horses[k], ignore_index=True)  
-                    else:
-                    
-                        race_horse = race_horse.append(horses[k], ignore_index=True)
-                        
+        
+        for index, row in team.iterrows():
+            if row['winner'] == 1.0:
+                race_winner = race_winner.append(row, ignore_index=True)  
+            else:
+                race_horse = race_horse.append(row, ignore_index=True)
+
     except:
         print("er")
 
@@ -132,39 +118,11 @@ def search_y_city(city):
 
 
 
-#res_city = search_y_city("Kaustinen")
+res_city = search_y_city("Teivo")
 #pdN = pd.DataFrame.from_dict(res_city)
 #print(pdN)
 
 
 
-"""
-citys_arr = []
-for i in tracks:
-    res_city = search_y_city(i)
-    i = pd.DataFrame.from_dict(res_city)
-    print(i)
-    citys_arr.append(i)
-
-df = pd.concat(citys_arr,  axis = 1)
-print(df)
-file_name = 'starts_car_or_volt.xlsx'
-df.to_excel(file_name)
-"""
-
-"""
-df = pd.read_pickle("horse_track.pkl")
-
-track = "Vermo"
-driver = "Ari Moilanen"
-df = df.query("place == @track")
-results = df['results'].to_numpy()
-
-
-for i in results:
-   
-    print(i)
-    
-"""
 
 

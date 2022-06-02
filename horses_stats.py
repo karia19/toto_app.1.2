@@ -79,37 +79,4 @@ def find_horses_prob_to_win(data_wins, data, name):
 
 if __name__ == "__main__":
     collect_all()
-    """
-    df_win = pd.read_pickle("horses_win.pkl")
-    df_no_wins = pd.read_pickle("horses_n_race.pkl")
-
-    place = "Jokimaa"
-    start_num = 1.0
-    test = df_no_wins.query("place == @place and start_num == @start_num")
-    print(test)
-    """
-
-    """
-    df_win = pd.read_pickle("horses_win.pkl")
-    df_no_wins = pd.read_pickle("horses_n_race.pkl")
-
-    horse = "Boulder Illusion"
-    print(df_win.query("name == @horse"))
-    print(df_no_wins.query("name == @horse"))
-    """
-
-    """
-    name_arr = list(df_win['name'])
     
-    for name in name_arr:
-        find_horses_prob_to_win(df_win, df_no_wins, name)
-
-    df = pd.DataFrame()
-    df['name'] = horse_name
-    df['wins'] = horses_starts
-    df['starts'] = horses_loses
-    df['proba'] = horse_prob
-    df = df.sort_values(by=['starts'], ascending=False)
-
-    print(df)
-    """

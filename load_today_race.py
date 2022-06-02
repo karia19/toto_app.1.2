@@ -72,8 +72,9 @@ def get_todays_race(city):
                 race_horses = s.get("https://www.veikkaus.fi/api/toto-info/v1/race/" + str(i) + "/runners")
                 race_horses_json = race_horses.json()
                 race_horses_json_all = race_horses_json['collection']
+                
+                
 
-              
                 horse_race_time = []
                 race_results = []
 
@@ -91,6 +92,7 @@ def get_todays_race(city):
                 horse_rear_shoes = []
                 horse_coach = []
                 horse_city = []
+
 
                 for i in range(len(race_horses_json_all)):
                     #horse_name.append(race_horses_json_all[i]['horseName'])
@@ -113,7 +115,7 @@ def get_todays_race(city):
                         horse_coach.append(race_horses_json_all[i]['coachName'])
                         
                         try:
-                            horse_race_time.append(race_horses_json_all[i]['stats']['currentYear']['record2'])
+                            horse_race_time.append(race_horses_json_all[i]['stats']['currentYear']['record1'])
                         except:
                             horse_race_time.append("0.0")
                             
@@ -297,7 +299,8 @@ def get_todays_race(city):
     return all_in_one_json
 
 def make_horses(city):
-   
+    
+
     data = get_todays_race(city)
     race_horse = pd.DataFrame()
     days = []
@@ -320,13 +323,24 @@ def make_horses(city):
                     horses[k]['day'] = day
                     horses[k]['race_type'] = race_typ
                     horses[k]['distance'] = race_distance
+                    try:
+                        horses[k]['horse_win_prob'] = horses[k]['postion1'] / horses[k]['starts']
+                    except:
+                        horses[k]['horse_win_prob'] = 0.0
+                    
                     race_horse = race_horse.append(horses[k], ignore_index=True)
                         
     except:
         print("er")
 
+    for i, row in race_horse.iterrows():
+        try:        
+            race_horse.at[i, 'probable'] = 1 / row['probable']
+        except ZeroDivisionError:
+            race_horse.at[i, 'probable'] = 0.0000
+
     return {"horses": race_horse, "days": list(dict.fromkeys(days)) }
 
 
-make_h = make_horses('Oulu')
-print(make_h['horses'])
+#make_h = make_horses('Teivo')
+#print(make_h['horses'])

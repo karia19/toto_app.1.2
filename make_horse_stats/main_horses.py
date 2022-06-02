@@ -11,6 +11,8 @@ import statsmodels.api as sm
 import joblib
 import pickle
 from datetime import datetime
+import collect_horse_stats
+import collect_drivers_stats
 
 
 f = open("toto_starts_2021.json")
@@ -153,6 +155,10 @@ if __name__ == "__main__":
     names = get_array(list(df['name']))
     drivers = get_array(list(df['driver']))
 
+    df = collect_horse_stats.make_horses(df, names)
+    df = collect_drivers_stats.make_drivers(df, drivers)
+
+    """
     #### MAKE HORSE WINMONEY AND WIN PROBA ####    
     for horse in names:
         horse_races = df.query("name == @horse")
@@ -171,9 +177,10 @@ if __name__ == "__main__":
             df.at[index, 'horse_starts'] = horse_starts
             horse_starts += 1
             
+            horse_win_money += float(row['moneys'])
+            
             if row['winner'] == 1.0:
                 horse_wins += 1
-                horse_win_money += float(row['win_money'])
 
                 df.at[index, "horse_wins"] = horse_wins
                 #df.at[index, "horse_win_prob"] = horse_wins / horse_starts
@@ -207,6 +214,7 @@ if __name__ == "__main__":
         horse_races['h_money'] = horse_races['horse_money'].shift(1, fill_value=0)
         horse_races['last_pr'] = horse_races['probable'].shift(1, fill_value=0)
         horse_races['time'] = horse_races['run_time'].shift(1, fill_value='0.0')
+        horse_races['position_2'] = horse_races['position'].shift(1, fill_value='0.0')
         
         memory_index = 0
         pattern = '[a-z]+'
@@ -217,6 +225,8 @@ if __name__ == "__main__":
             df.at[index, "run_time_shift"] =  horse_races['time'].iloc[memory_index]
             df.at[index, "last_proba"] =  horse_races['last_pr'].iloc[memory_index]
             df.at[index, 'rest_days'] = horse_races['rest_days'].iloc[memory_index]
+            df.at[index, 'last_position'] = horse_races['position_2'].iloc[memory_index]
+
 
 
             memory_index += 1
@@ -228,10 +238,10 @@ if __name__ == "__main__":
             df.at[index, "driver_starts"] = mem_starts
             mem_starts += 1
    
-   
+    
 
    
-    
+    """
     horse_names = get_array(list(df['name']))
     le_horse = LabelEncoder()
     le_horse.fit(horse_names)
@@ -244,5 +254,7 @@ if __name__ == "__main__":
 
  
     print(df)
+    
+    
     df.to_pickle("horses.pkl")
     

@@ -28,4 +28,4 @@ def days_between_races(days):
     return days_arr
 
 
-search_horse("Mattilan Eemeli")
+search_horse("Dad's Memory")
