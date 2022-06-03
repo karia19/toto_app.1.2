@@ -1,4 +1,5 @@
 
+from traceback import print_tb
 from matplotlib.pyplot import get
 import pandas as pd
 import json
@@ -21,7 +22,7 @@ import xgboost as xgb
 
 
 
-array_len = 144
+array_len = 160
 
 def serach_city(data, city):
     df_city = data.query("race_city == @city")
@@ -79,7 +80,8 @@ def make_horses_to_2d(data, days):
                                             row['probable_last'], 
                                             row['driver_starts'],                           
                                             row['horse_win_prob'],
-                                            row['d_w_pr_s']
+                                            row['d_w_pr_s'],
+                                            row['h_w_S']
 
                                            
                                             
@@ -140,7 +142,7 @@ def hash_shoes(shoes):
 
 if __name__ == "__main__":
 
-    city = "Seinäjoki"
+    city = "Turku"
     
     
     df_all = pd.read_pickle("horses.pkl")
@@ -184,9 +186,10 @@ if __name__ == "__main__":
     
     
     print(df)
+    df['h_w_S'] = df['h_w_s'].astype(float)
    
 
-    cor_x = df[['d_w_pr_s', 'probable_last', 'probable', 'city_l', 'last_run', 'rest_days', 'coach_l', 'race_new', 'front_new', 'start_num', 'horse_starts', 'gender_new', 'run_time', 'track', 'driver_l', 'horse_l','amount', 'driver_starts', 'age', 'horse_win_prob', 'horse_money']]
+    cor_x = df[['h_w_S','d_w_pr_s', 'probable_last', 'probable', 'city_l', 'last_run', 'rest_days', 'coach_l', 'race_new', 'front_new', 'start_num', 'horse_starts', 'gender_new', 'run_time', 'track', 'driver_l', 'horse_l','amount', 'driver_starts', 'age', 'horse_win_prob', 'horse_money']]
     y_cor = df['winner']
     print(cor_x.corrwith(y_cor, method='pearson'))
     
@@ -195,11 +198,11 @@ if __name__ == "__main__":
    
     
 
-    df['prob_small'] = df['probable'] / 100
-    center_function = lambda x: x - x.mean()
-    df['amount_cen'] = center_function(np.array(df['amount']))
+    #df['prob_small'] = df['probable'] / 100
+    #center_function = lambda x: x - x.mean()
+    #df['amount_cen'] = center_function(np.array(df['amount']))
 
-    x = df[['rest_days', 'track', 'age', 'd_w_pr_s', 'd_w_pr', 'probable_last','probable', 'gender_new', 'amount', 'horse_win_prob', 'horse_money']]
+    x = df[['h_w_S','rest_days', 'track', 'age', 'd_w_pr_s', 'probable_last','probable', 'gender_new', 'amount', 'horse_win_prob', 'horse_money']]
     y = df['winner'].to_numpy(dtype="float")
     
   
@@ -241,7 +244,20 @@ if __name__ == "__main__":
     print("GradientBoost", clf_boost.score(X_test, y_test))
 
     ### XBOOST CLASS ###
-    model = xgb.XGBRFClassifier()
+    from sklearn.model_selection import GridSearchCV
+    
+    model = xgb.XGBRFClassifier(learning_rate=0.1, max_depth=3)
+    """
+    parameters = {
+        "n_estimators":[5,50,250,500],
+        "max_depth":[1,3,5,7,9],
+        "learning_rate":[0.01,0.1,1,10,100]
+    }
+    cv = GridSearchCV(model,parameters,cv=5)
+    cv.fit(X_train, y_train)
+    print(cv.best_params_)
+    """
+
     model.fit(X_train, y_train)
     print("XGBC_class ", model.score(X_test, y_test))
 

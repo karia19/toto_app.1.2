@@ -58,7 +58,7 @@ def make_horses(df, names):
                 #df.at[index, "horse_win_prob"] = horse_wins / horse_starts
                 #df.at[index, "horse_money"] = 0.0
 
-                #horse_races.at[index, "horse_wins"] =  0.0123
+                horse_races.at[index, "horse_wins"] =  horse_wins
                 horse_races.at[index, "horse_win_prob"] = horse_wins / horse_starts
                 horse_races.at[index, "horse_money"] = horse_win_money
 
@@ -72,7 +72,10 @@ def make_horses(df, names):
         horse_races['last_pr'] = horse_races['probable'].shift(1, fill_value=0)
         horse_races['time'] = horse_races['run_time'].shift(1, fill_value='0.0')
         horse_races['position_2'] = horse_races['position'].shift(1, fill_value='0.0')
+        horse_races['winns'] = horse_races['horse_wins'].shift(1, fill_value='0.0')
         
+       
+
         memory_index = 0
         pattern = '[a-z]+'
         
@@ -83,6 +86,8 @@ def make_horses(df, names):
             df.at[index, "last_proba"] =  horse_races['last_pr'].iloc[memory_index]
             df.at[index, 'rest_days'] = horse_races['rest_days'].iloc[memory_index]
             df.at[index, 'last_position'] = horse_races['position_2'].iloc[memory_index]
+            df.at[index, "h_w_s"] = horse_races['winns'].iloc[memory_index]
+            
 
 
 

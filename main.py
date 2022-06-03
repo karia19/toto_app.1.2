@@ -1,5 +1,3 @@
-from random import randint
-from matplotlib.pyplot import get
 import pandas as pd
 import json
 from sklearn.linear_model import LogisticRegression
@@ -12,7 +10,7 @@ import statsmodels.api as sm
 import joblib
 import pickle
 from xgboost import XGBClassifier
-
+from make_horse_stats import search_horse
 
 team = pd.read_pickle("make_horse_stats/horses.pkl")
 
@@ -53,7 +51,8 @@ def make_horses_to_2d(data, days):
                                             row['probable_last'], 
                                             row['driver_starts'],                           
                                             row['horse_win_prob'],
-                                            row['d_w_pr']
+                                            row['d_w_pr'],
+                                            row['h_w_S']
                                             
 
                                             
@@ -63,7 +62,7 @@ def make_horses_to_2d(data, days):
             if len(test_ar) != 0:
                 #print(len(test_ar))
                 #same_len = 189 - len(test_ar)
-                for i in range(len(test_ar), 144):
+                for i in range(len(test_ar), 160):
                     #if test_ar[i] != float:
                         test_ar.append(0.0)
 
@@ -73,7 +72,7 @@ def make_horses_to_2d(data, days):
     #print(all_in_one)
 
     col_len = []
-    for i in range(144):
+    for i in range(160):
         col_len.append(i)
     
     df = pd.DataFrame(all_in_one, columns=col_len)
@@ -131,7 +130,8 @@ def set_drivers_history(past_data, today_data, drivers):
            
 
         except:
-            starts = 0.0   
+            starts = 0.0
+            win_prob = 0.0   
 
         for index, row in today_data.iterrows():
             if row['driver'] == d:
@@ -155,22 +155,29 @@ def set_horse_history(past_data, today_data, drivers):
                 pos = float(horse_last_starts['position'])
             except:
                 pos = 0.0
+
+            try:
+                last_win = float(horse_last_starts['horse_wins'])
+            except:
+                last_win = 0.0
            
 
         except:
             pos = 0.0
-            proba = 0.0   
+            proba = 0.0
+            last_win = 0.0   
 
         for index, row in today_data.iterrows():
             if row['name'] == d:
                 today_data.at[index, "last_proba"] = proba
-                today_data.at[index, "last_run"] = pos 
+                today_data.at[index, "last_run"] = pos
+                today_data.at[index, "h_w_S"] = last_win
     
     return today_data
 
 if __name__ == "__main__":
 
-    place = 'Seinäjoki'
+    place = 'Turku'
     
     today_race = load_today_race.make_horses(place)
     
@@ -183,6 +190,10 @@ if __name__ == "__main__":
     
     drives = get_array(list(df['driver']))
     horses = get_array(list(df['name']))
+    
+    ### COLLETCT TO DAY HORSES####
+    
+
     df2 = set_drivers_history(team, df, drives)
     df3 = set_horse_history(team, df2, horses)
     df3['win_money'] = df3['win_money'] / 100

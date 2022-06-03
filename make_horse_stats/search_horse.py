@@ -1,13 +1,15 @@
 import pandas as pd
 from datetime import datetime
 
-df = pd.read_pickle("horses.pkl")
+df = pd.read_pickle("/Users/kari/Desktop/toto_horse2/make_horse_stats/horses.pkl")
 
 def search_horse(name):
     horse_stats = df.query("name == @name")
+    #horse_stats['h_w_s'] = horse_stats['h_w_s'].fillna(0.0)
     #res_days =  days_between_races(list(horse_stats['day']))
-    #horse_stats['rest_days'] = res_days 
-    print(horse_stats)
+    #horse_stats['rest_days'] = res_days
+    print(horse_stats) 
+    return  horse_stats.iloc[-1:]
 
 
 
@@ -28,4 +30,4 @@ def days_between_races(days):
     return days_arr
 
 
-search_horse("Dad's Memory")
+search_horse("Y.P. Son")
