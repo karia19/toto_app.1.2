@@ -1,0 +1,12 @@
+flask
+redis
+flask_cors
+gunicorn==19.9.0
+numpy
+pandas
+keras
+scipy
+requests==2.18.4
+scikit-learn==1.0.1
+statsmodels
+xgboost==0.90
