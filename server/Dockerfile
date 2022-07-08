@@ -1,4 +1,16 @@
 FROM python:3.9-buster
+
+RUN apt-get update -y \
+  && apt-get install cron -y
+
+COPY update_ods.cron /etc/cron.d/update_ods.cron
+
+RUN chmod 0644 /etc/cron.d/update_ods.cron \
+  && crontab /etc/cron.d/update_ods.cron
+
+CMD ["cron", "-f"]
+
+
 WORKDIR /app
 
 RUN pip install --upgrade pip

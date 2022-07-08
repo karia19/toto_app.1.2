@@ -4,6 +4,32 @@ import datetime
 import requests
 import re
 
+tracks = ['Kuopio', 'Vermo', 'Härmä', 'Pori', 'Ylivieska', 'Jokimaa', 'Kaustinen', 
+            'Seinäjoki', 'Joensuu', 'Kouvola', 'Mikkeli', 'Lappeenranta', 'Oulu', 
+            'Forssa', 'Turku', 'Joensuu', 'Jyväskylä','Teivo', 'Vieremä', 'Kuopio', 'Kajaani']
+
+
+
+def check_races_for_city():
+    s = requests.Session()
+    today = datetime.datetime.now().strftime("%Y-%m-%d")
+    try:
+
+        api_url = "https://www.veikkaus.fi/api/toto-info/v1/cards/date/" + today
+        response = s.get(api_url)
+        what = response.json()
+        #print(what)
+
+        for i in range(len(what['collection'])):
+            if what['collection'][i]['country'] == "FI" and what['collection'][i]['trackName'] in tracks:
+                #print(what['collection'][i]['trackName'])
+                collection_track_id = i 
+                return what['collection'][i]['trackName']
+
+    except:
+        print("not find")
+        return "not find"
+
 
 
 def get_todays_race(city):
