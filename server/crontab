@@ -1,0 +1,8 @@
+CRON_TZ=Europe/Helsinki
+
+
+*/30 * * * * /usr/local/bin/python3  /app/update_redis.py >> /var/log/daily-backup.log 2>&1
+
+*/4 * * * * echo "hello world" > hello.txt >> /var/log/daily-backup.log 2>&1
+
+*/1 * * * * cd /app && python3 test_cron.py  >> /var/log/daily-backup.log 2>&1

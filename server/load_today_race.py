@@ -68,12 +68,14 @@ def get_todays_race(city):
         race_distance = []
 
         for i in range(len(res_le)):
-                race_ID.append(res_le[i]['raceId'])
-                #race_results.append(res_le[i]['toteResultString'].split("-"))
-                race_type.append(res_le[i]['startType'])
-                race_riders.append(res_le[i]['raceStatus'])
-                reverse_order.append(res_le[i]['reserveHorsesOrder'].split("-"))
-                race_distance.append(res_le[i]['distance'])
+                if res_le[i]['raceStatus'] != "CLOSED":
+                  race_ID.append(res_le[i]['raceId'])
+                  #race_results.append(res_le[i]['toteResultString'].split("-"))
+                  race_type.append(res_le[i]['startType'])
+                  race_riders.append(res_le[i]['raceStatus'])
+                  reverse_order.append(res_le[i]['reserveHorsesOrder'].split("-"))
+                  race_distance.append(res_le[i]['distance'])
+        
         print(race_ID)
 
         pool_ids = []

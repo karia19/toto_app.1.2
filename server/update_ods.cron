@@ -1,2 +1,0 @@
-0 * * * * bash /home/ubuntu/docker_toto/server/update_redis.py
-

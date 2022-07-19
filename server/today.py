@@ -1,5 +1,6 @@
 import load_today_race
 import pandas as pd
+import horses_points
 
 
 #team = pd.read_pickle("horses.pkl")
@@ -120,6 +121,7 @@ def main_today(city):
     df2 = set_drivers_history(team, df, drives)
     df3 = set_horse_history(team, df2, horses)
     #df3 = set_coach_history(team, df2, coaches)
+    df3 = horses_points.make_rates(df3)    
     start_nums = get_array(list(df3['start_num']))
     #print(df3, start_nums)
 

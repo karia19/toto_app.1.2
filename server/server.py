@@ -45,7 +45,7 @@ def horses_today():
     if request.method == "POST":
         res = request.get_json()
         res_roday = today.main_today(res['city'])
-        redis_python.save_data_redis(res['city'])
+        #redis_python.save_data_redis(res['city'])
 
         #return { "message": "working on progress" }
         return json.dumps(res_roday)
