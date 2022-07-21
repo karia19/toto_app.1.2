@@ -33,8 +33,8 @@ RUN pip install -r requirements.txt
 COPY . .
 EXPOSE 8000
 
-#RUN chmod u+x /app/test_cron.py
-#RUN chmod u+x /app/update_redis.py
+RUN chmod u+x /app/test_cron.py
+RUN chmod u+x /app/update_redis.py
 
 
 CMD ["gunicorn"  , "-b", "0.0.0.0:8000", "server:app"]

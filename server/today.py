@@ -121,7 +121,11 @@ def main_today(city):
     df2 = set_drivers_history(team, df, drives)
     df3 = set_horse_history(team, df2, horses)
     #df3 = set_coach_history(team, df2, coaches)
+    #### MAKE CHECK HORSES POINTS IN THIS SERVER IT'S TOO HEAVY TO CALCULATE SO REMOVE TO SOMEWHER ELSE ####
+
     df3 = horses_points.make_rates(df3)    
+    
+
     start_nums = get_array(list(df3['start_num']))
     #print(df3, start_nums)
 
