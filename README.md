@@ -3,6 +3,15 @@
 ```
 docker compose up -d
 ```
+### To run crontab
+```
+docker exec CONATAINER_ID bin/bash
+
+service cron start
+```
+
+
+sytemc
 
 #### All data are update in one hours this is done by crontab what are istalled by docker and files to run 
 
