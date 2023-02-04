@@ -11,9 +11,7 @@ service cron start
 ```
 
 
-sytemc
-
-#### All data are update in one hours this is done by crontab what are istalled by docker and files to run 
+### All data are update in one hours this is done by crontab what are istalled by docker and files to run 
 
 - There is some  pseudo machine learng models to predict rase winners this models are from folder faija
 - Fromtend show past days race ods hour by hour 
