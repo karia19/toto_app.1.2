@@ -1,0 +1,16 @@
+version: "3.9"
+services:
+  web:
+    build: .
+    environment:
+      TZ: Europe/Helsinki
+    ports:
+      - "8000:8000"
+
+  redis:
+    image: "redis:latest"
+    #command: redis-server --requirepass ${REDIS_PASS:-password123}
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./redisdata:/data

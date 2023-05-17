@@ -1,0 +1,3 @@
+*/30 * * * * /usr/bin/python3 update_redis.py >> /var/log/daily-backup.log 2>&1
+ 
+*/5 * * * * echo "hello world" > hello.txt >> /var/log/daily-backup.log 2>&1
