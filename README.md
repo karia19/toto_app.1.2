@@ -9,7 +9,7 @@ To install the necessary dependencies, follow these steps:
 1. Clone this repository to your local machine or server:
 
    ```bash
-   git clone https://github.com/your-username/toto-history-odds-server.git
+   git clone https://github.com/karia19/toto_app.1.2
    ```
 
 ## Usage
