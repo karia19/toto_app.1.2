@@ -1,14 +1,66 @@
-# Server for toto_app.1.2 frontend
-### All files are docker and to run docker go folder server
-```
-docker compose up -d
-```
-### To run crontab
+# Flask Server for Toto History Odds API
+
+This repository contains a Flask server implementation for an API that provides historical odds data for Veikkaus Toto game. The server fetches data from the Veikkaus API and stores it in a Redis database. It also provides an endpoint for calculating statistics based on track starts, drivers, and coach success in the track.
+
+## Prerequisites
+
+Before running the Flask server, ensure that you have the following prerequisites installed on your system:
+
+- Python (version 3.x)
+- Docker (optional)
+
+## Installation
+
+To install the necessary dependencies, follow these steps:
+
+1. Clone this repository to your local machine or server:
+
+   ```bash
+   git clone https://github.com/your-username/toto-history-odds-server.git
+   ```
+
+2. Navigate to the cloned repository:
+
+   ```bash
+   cd toto-history-odds-server
+   ```
+
+3. Install the required Python packages using `pip`:
+
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+
+
+## Usage
+
+Ensure that Docker is installed on your system, and then follow these steps:
+
+1. Build the Docker image:
+
+   ```bash
+   cd server
+   docker compose up -d --build .
+   ```
+2. To run crontab
 ```
 docker exec CONATAINER_ID bin/bash
 
 service cron start
 ```
+
+
+## API Endpoints
+
+The server provides the following API endpoints:
+
+- `GET /api/v1/toto/history_odds`: Retrieves Toto historical odds data for a specific day from the Redis database. The data is fetched from the Veikkaus API if it's not already stored.
+
+- `GET /api/v1/toto/history`: Calculates statistics based on track starts, drivers, and coach success in the track.
+
+Feel free to explore and integrate these endpoints into your application as needed.
+
 
 
 ## Known Issues
