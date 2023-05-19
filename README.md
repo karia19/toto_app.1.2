@@ -23,11 +23,11 @@ Ensure that Docker is installed on your system, and then follow these steps:
    docker compose up -d --build .
    ```
 2. To run crontab
-```
-docker exec CONATAINER_ID bin/bash
+   ```
+   docker exec CONATAINER_ID bin/bash
 
-service cron start
-```
+   service cron start
+   ```
 
 
 ## API Endpoints
