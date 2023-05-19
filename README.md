@@ -1,6 +1,6 @@
 # Server for Toto History Odds API
 
-This repository contains a Flask server implementation for an API that provides historical odds data for Veikkaus Toto game. The server fetches data from the Veikkaus API and stores it in a Redis database. It also provides an endpoint for calculating statistics based on track starts, drivers, and coach success in the track.
+This repository contains a Flask server implementation for an API that provides historical odds data for Toto- App. The server fetches data from the Veikkaus API and stores it in a Redis database. It also provides an endpoint for calculating statistics based on track starts, drivers, and coach success in the track.
 
 ## Installation
 
