@@ -11,6 +11,16 @@ service cron start
 ```
 
 
-### All data are update in one hours this is done by crontab what are istalled by docker and files to run 
+## Known Issues
 
-- Frontend show past days race ods hour by hour 
+- Some track statistics may not work as expected.
+- The odds data in the historical odds endpoint may be missing for certain days.
+- The Redis database has not been updated since September 2022.
+
+## Contributing
+
+Contributions are welcome! If you find any bugs, have feature requests, or want to contribute improvements, please open an issue or submit a pull request.
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
