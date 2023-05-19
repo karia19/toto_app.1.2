@@ -45,7 +45,7 @@ Feel free to explore and integrate these endpoints into your application as need
 ## Known Issues
 
 - Some track statistics may not work as expected.
-- The odds data in the historical odds endpoint may be missing for certain days.
+- The odds data in the historical odds endpoint is missing data from certain days.
 - The database has not been updated since September 2022.
 
 ## Contributing
