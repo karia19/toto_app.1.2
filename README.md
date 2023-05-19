@@ -15,7 +15,7 @@ service cron start
 
 - Some track statistics may not work as expected.
 - The odds data in the historical odds endpoint may be missing for certain days.
-- The Redis database has not been updated since September 2022.
+- The database has not been updated since September 2022.
 
 ## Contributing
 
