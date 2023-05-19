@@ -2,13 +2,6 @@
 
 This repository contains a Flask server implementation for an API that provides historical odds data for Veikkaus Toto game. The server fetches data from the Veikkaus API and stores it in a Redis database. It also provides an endpoint for calculating statistics based on track starts, drivers, and coach success in the track.
 
-## Prerequisites
-
-Before running the Flask server, ensure that you have the following prerequisites installed on your system:
-
-- Python (version 3.x)
-- Docker (optional)
-
 ## Installation
 
 To install the necessary dependencies, follow these steps:
@@ -18,20 +11,6 @@ To install the necessary dependencies, follow these steps:
    ```bash
    git clone https://github.com/your-username/toto-history-odds-server.git
    ```
-
-2. Navigate to the cloned repository:
-
-   ```bash
-   cd toto-history-odds-server
-   ```
-
-3. Install the required Python packages using `pip`:
-
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-
 
 ## Usage
 
