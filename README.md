@@ -34,7 +34,7 @@ Ensure that Docker is installed on your system, and then follow these steps:
 
 The server provides the following API endpoints:
 
-- `GET /api/v1/toto/history_odds`: Retrieves Toto historical odds data for a specific day from the Redis database. The data is fetched from the Veikkaus API if it's not already stored.
+- `GET /api/v1/toto/history_odds`: Retrieves Toto historical odds data for a specific day from the Redis database. The data is fetched from the Veikkaus API.
 
 - `GET /api/v1/toto/history`: Calculates statistics based on track starts, drivers, and coach success in the track.
 
